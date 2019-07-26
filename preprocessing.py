@@ -1,6 +1,6 @@
 import scanpy.api as sc
 import numpy as np
-def receipe_my(adata,l_n_genes = 500, r_n_genes= 5000, log = False,sparse = False):
+def receipe_my(adata,l_n_genes = 500, r_n_genes= 5000, log = False,sparse = False,plotinfo= False):
 
     sc.pp.filter_cells(adata, min_genes=200)
     sc.pp.filter_genes(adata, min_cells=3)
