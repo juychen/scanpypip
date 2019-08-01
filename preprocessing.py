@@ -50,6 +50,6 @@ def receipe_my(adata,l_n_genes = 500, r_n_genes= 5000, percent_mito = 0.05, log 
     if log == True:
         sc.pp.log1p(adata)
 
-    sc.pp.scale(adata, max_value=10)
+    #sc.pp.scale(adata, max_value=10)
 
     return adata
