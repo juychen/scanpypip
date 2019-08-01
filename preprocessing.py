@@ -31,7 +31,8 @@ def receipe_my(adata,l_n_genes = 500, r_n_genes= 5000, log = False,sparse = Fals
 
     print(adata.shape)
     
-    sc.pp.normalize_per_cell(adata, counts_per_cell_after=1e4)
+    sc.pp.normalize_total(adata,)
+    #sc.pp.normalize_per_cell(adata, counts_per_cell_after=1e4)
     adata.raw = adata
 
     if log == True:
