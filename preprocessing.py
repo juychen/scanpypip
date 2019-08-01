@@ -24,7 +24,7 @@ def receipe_my(adata,l_n_genes = 500, r_n_genes= 5000, log = False,sparse = Fals
 
     if(plotinfo!=False):
         sc.pl.violin(adata, ['n_genes', 'n_counts', 'percent_mito'],
-             jitter=0.4, multi_panel=True, save=Ture)
+             jitter=0.4, multi_panel=True, save=True)
         #plt.savefig(plotinfo)
 
 
