@@ -19,8 +19,6 @@ def receipe_my(adata,l_n_genes = 500, r_n_genes= 5000, percent_mito = 0.05, log 
     sc.pp.filter_cells(adata, min_genes=200)
     sc.pp.filter_genes(adata, min_cells=3)
     
-    mito_genes = adata.var_names.str.startswith('mt-')
-
     adata = cal_ncount_ngenes(adata)
 
     # if sparse == False:    
