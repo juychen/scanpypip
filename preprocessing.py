@@ -14,7 +14,7 @@ def cal_ncount_ngenes(adata,sparse=False):
         adata.obs['percent_mito'] = np.sum(adata[:, mito_genes].X, axis=1).A1 / np.sum(adata.X, axis=1).A1
     return adata
 
-def receipe_my(adata,l_n_genes = 500, r_n_genes= 5000, percent_mito = 0.05, log = False,sparse = False,plotinfo= False):
+def receipe_my(adata,l_n_genes = 500, r_n_genes= 5000, percent_mito = 0.05, normalize = False,log = False,sparse = False,plotinfo= False):
 
     sc.pp.filter_cells(adata, min_genes=200)
     sc.pp.filter_genes(adata, min_cells=3)
@@ -43,7 +43,8 @@ def receipe_my(adata,l_n_genes = 500, r_n_genes= 5000, percent_mito = 0.05, log 
 
     print(adata.shape)
     
-    sc.pp.normalize_total(adata,)
+    if normalize == True:
+        sc.pp.normalize_total(adata)
     #sc.pp.normalize_per_cell(adata, counts_per_cell_after=1e4)
     adata.raw = adata
 
