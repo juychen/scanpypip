@@ -2,7 +2,13 @@ import scanpy.api as sc
 import numpy as np
 from matplotlib import pyplot as plot
 
-def concat(datats):
+def concat(adata_dict):
+    ada_keys = list(adata_dict.keys())
+
+    adata = adata_dict[ada_keys[0]].concatenate([adata_dict[k] for k in ada_keys[1:]]
+                                      ,batch_key="sample")
+    
+    return adata
 
 def cal_ncount_ngenes(adata,sparse=False):
     
