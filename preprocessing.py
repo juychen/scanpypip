@@ -2,6 +2,8 @@ import scanpy.api as sc
 import numpy as np
 from matplotlib import pyplot as plot
 
+def concat(datats):
+
 def cal_ncount_ngenes(adata,sparse=False):
     
     mito_genes = adata.var_names.str.startswith('mt-')
