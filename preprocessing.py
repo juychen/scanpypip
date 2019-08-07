@@ -5,6 +5,30 @@ from matplotlib import pyplot as plot
 
 
 def read_sc_file(file_path,header=0,index_col=0,sep="\t"):
+    '''
+    This is a fucntion to load data having multiple formats.
+
+    Params:
+    -------
+    
+    file_path: str,
+        The path of the input file
+    
+    header: int, (default: `0`)
+        Only used if loading txt or csv files. Set the row number of header.
+    
+    index_col: int, (default: `0`)
+        Only used if loading txt or csv files. Set the row name number of the expression file.
+
+    sep: str, (default: `"\t"`)
+        Only used if loading txt or csv files. Set the seperator of the input file.
+
+    Return:
+    -------
+    
+    gene_expression: AnnData,
+        The load data. 
+    '''
     filename = file_path
     # deal with csv file 
     if (filename.find(".csv")>=0):
