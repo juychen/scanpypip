@@ -1,8 +1,28 @@
 import scanpy.api as sc
 import numpy as np
+import pandas as pd
 from matplotlib import pyplot as plot
 
-def concat(adata_dict,join='inner', batch_key='sample', batch_categories=None, index_unique='-', combat = False, combat_key = "batch",covariates=None):
+
+def read_sc_file(file_path,header=0,index_col=0,sep="\t"):
+    filename = file_path
+    # deal with csv file 
+    if (filename.find(".csv")>=0):
+        counts_drop = pd.read_csv(filename, header=header, index_col=index_col, sep = sep)
+        gene_expression = sc.AnnData(counts_drop.T)
+        
+    # deal with txt file
+    elif (filename.find(".txt")>=0):
+        counts_drop = pd.read_csv(filename, header=header, index_col=index_col, sep= sep)
+        gene_expression = sc.AnnData(counts_drop.T)
+        
+    # deal with 10x h5 file
+    elif filename.find(".h5")>=0:
+        gene_expression = sc.read_10x_h5(filename, genome=None, gex_only=True)
+
+    return gene_expression
+
+def concat(adata_dict,join='inner', sample_key='sample', batch_categories=None, index_unique='-', combat = False, combat_key = "batch",covariates=None):
     '''
     This is a function to concat a dictonary of AnnData objects. Please predefine your own batch keys before the concatination
 
@@ -16,8 +36,8 @@ def concat(adata_dict,join='inner', batch_key='sample', batch_categories=None, i
     join: `str`, optional (default: `"inner"`)
         Use intersection (``'inner'``) or union (``'outer'``) of variables.
     
-    batch_key: `str`, (default: `"sample"`)
-        Add the batch annotation to :attr:`obs` using this key.
+    sample_key: `str`, (default: `"sample"`)
+        Add the sample annotation to :attr:`obs` using this key.
     
     batch_categories: `str`,optional (default: `None`)
         Use these as categories for the batch annotation. By default, use increasing numbers.
@@ -49,11 +69,12 @@ def concat(adata_dict,join='inner', batch_key='sample', batch_categories=None, i
         stores a categorical variable labeling the original file identity.
 
     '''
+    # Get the list of the dictionary keys to store the original file identity
     ada_keys = list(adata_dict.keys())
-
+    # Concat all the adata in the dictionary 
     adata = adata_dict[ada_keys[0]].concatenate([adata_dict[k] for k in ada_keys[1:]]
                                       ,join=join
-                                      ,batch_key=batch_key
+                                      ,batch_key=sample_key
                                       ,batch_categories=batch_categories
                                       ,index_unique=index_unique)
     
@@ -61,6 +82,7 @@ def concat(adata_dict,join='inner', batch_key='sample', batch_categories=None, i
         return adata
     
     else:
+        # Process combat batch correction
         sc.pp.combat(adata, key=combat_key, covariates=covariates)
 
     return adata
