@@ -114,13 +114,23 @@ def concat(adata_dict,join='inner', sample_key='sample', batch_categories=None, 
 def cal_ncount_ngenes(adata,sparse=False):
     
     mito_genes = adata.var_names.str.startswith('mt-')
+    rps_genes = adata.var_names.str.startswith('Rps-')
+    rpl_genes = adata.var_names.str.startswith('Rpl-')
+
 
     if sparse == False:    
         adata.obs['n_counts'] = adata.X.sum(axis=1)
         adata.obs['percent_mito'] = np.sum(adata[:, mito_genes].X, axis=1) / np.sum(adata.X, axis=1)
+        adata.obs['percent_rps'] = np.sum(adata[:, rps_genes].X, axis=1) / np.sum(adata.X, axis=1)
+        adata.obs['percent_rpl'] = np.sum(adata[:, rpl_genes].X, axis=1) / np.sum(adata.X, axis=1)
+
+
     else:
         adata.obs['n_counts'] = adata.X.sum(axis=1).A1
         adata.obs['percent_mito'] = np.sum(adata[:, mito_genes].X, axis=1).A1 / np.sum(adata.X, axis=1).A1
+        adata.obs['percent_rps'] = np.sum(adata[:, rps_genes].X, axis=1).A1 / np.sum(adata.X, axis=1).A1
+        adata.obs['percent_rpl'] = np.sum(adata[:, rpl_genes].X, axis=1).A1 / np.sum(adata.X, axis=1).A1
+
     return adata
 
 def receipe_my(adata,l_n_genes = 500, r_n_genes= 5000, filter_mincells=3,filter_mingenes=200, percent_mito = 0.05, normalize = False,log = False,sparse = False,plotinfo= False):
