@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as pl
 from matplotlib import rcParams
 
-def trajetory(adata,clustering = "leiden",n_neighbors = 20):
+def trajetory_paga(adata,clustering = "leiden",n_neighbors = 20):
     
     # PCA 
     sc.tl.pca(adata, svd_solver='arpack')
