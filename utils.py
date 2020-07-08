@@ -1,5 +1,6 @@
 import pandas as pd
 import scanpy as sc
+import torch
 def get_de_dataframe(adata,index):
         df_result = pd.DataFrame({
             "names":[item[index] for item in adata.uns["rank_genes_groups"]["names"]]
