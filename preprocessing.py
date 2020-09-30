@@ -113,10 +113,9 @@ def concat(adata_dict,join='inner', sample_key='sample', batch_categories=None, 
 
 def cal_ncount_ngenes(adata,sparse=False):
     
-    mito_genes = adata.var_names.str.startswith('mt-')
-    rps_genes = adata.var_names.str.startswith('Rps')
-    rpl_genes = adata.var_names.str.startswith('Rpl')
-
+    mito_genes = adata.var_names.str.lower().str.startswith('mt')
+    rps_genes = adata.var_names.str.lower().str.startswith('rps')
+    rpl_genes = adata.var_names.str.lower().str.startswith('rpl')
 
     if sparse == False:    
         adata.obs['n_counts'] = adata.X.sum(axis=1)
