@@ -4,7 +4,7 @@ import pandas as pd
 from matplotlib import pyplot as plot
 
 
-def read_sc_file(file_path,header=0,index_col=0,sep="\t"):
+def read_sc_file(file_path,header=0,index_col=0,sep=None):
     '''
     This is a fucntion to load data having multiple formats.
 
@@ -30,19 +30,37 @@ def read_sc_file(file_path,header=0,index_col=0,sep="\t"):
         The load data. 
     '''
     filename = file_path
+    separators = ["\t","\n"," "] 
     # deal with csv file 
-    if (filename.find(".csv")>=0):
-        counts_drop = pd.read_csv(filename, header=header, index_col=index_col, sep = sep)
+    if ((filename.find(".csv")>=0) or (filename.find(".txt")>=0)):
+
+        # If a seperator is defined
+        if(sep!=None):
+            counts_drop = pd.read_csv(filename, header=header, index_col=index_col, sep = sep)
+
+        else:
+            # Try different separatos
+            for s in separators:
+                counts_drop = pd.read_csv(filename, header=header, index_col=index_col, sep = s)
+                if(counts_drop.shape[1]!=1):
+                    break
+                        
         gene_expression = sc.AnnData(counts_drop.T)
         
     # deal with txt file
-    elif (filename.find(".txt")>=0):
-        counts_drop = pd.read_csv(filename, header=header, index_col=index_col, sep= sep)
-        gene_expression = sc.AnnData(counts_drop.T)
+    # elif (filename.find(".txt")>=0):
+    #     counts_drop = pd.read_csv(filename, header=header, index_col=index_col, sep= sep)
+    #     gene_expression = sc.AnnData(counts_drop.T)
         
     # deal with 10x h5 file
     elif filename.find(".h5")>=0:
         gene_expression = sc.read_10x_h5(filename, genome=None, gex_only=True)
+    
+    # Deal with 10x mtx files
+    else:
+        gene_expression = sc.read_10x_mtx(filename,  # the directory with the `.mtx` file 
+        var_names='gene_symbols',                # use gene symbols for the variable names (variables-axis index)
+        cache=True)            
 
     return gene_expression
 
