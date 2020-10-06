@@ -176,10 +176,10 @@ def receipe_my(adata,l_n_genes = 500, r_n_genes= 5000, filter_mincells=3,filter_
         np.logical_and(
         (adata.obs['n_genes'] > l_n_genes), 
         (adata.obs['n_genes'] < r_n_genes)),:]
-    adata = adata[adata.obs['percent_mito'] < percent_mito, :]
+    adata = adata[adata.obs['pct_counts_mt'] < percent_mito, :]
 
     if(plotinfo!=False):
-        sc.pl.violin(adata, ['n_genes', 'n_counts', 'percent_mito'],
+        sc.pl.violin(adata, ['n_genes_by_counts', 'total_counts', 'pct_counts_mt'],
              jitter=0.4, multi_panel=True, save=True)
         #plt.savefig(plotinfo)
 
