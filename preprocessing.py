@@ -143,15 +143,15 @@ def cal_ncount_ngenes(adata,sparse=False):
     sc.pp.calculate_qc_metrics(adata, qc_vars=['rps'], percent_top=None, log1p=False, inplace=True)
     sc.pp.calculate_qc_metrics(adata, qc_vars=['rpl'], percent_top=None, log1p=False, inplace=True)
 
-    if sparse == False:    
-        adata.obs['n_counts'] = adata.X.sum(axis=1)
+    #if sparse == False:    
+        #adata.obs['n_counts'] = adata.X.sum(axis=1)
         #adata.obs['percent_mito'] = np.sum(adata[:, mito_genes].X, axis=1) / np.sum(adata.X, axis=1)
         #adata.obs['percent_rps'] = np.sum(adata[:, rps_genes].X, axis=1) / np.sum(adata.X, axis=1)
         #adata.obs['percent_rpl'] = np.sum(adata[:, rpl_genes].X, axis=1) / np.sum(adata.X, axis=1)
 
 
-    else:
-        adata.obs['n_counts'] = adata.X.sum(axis=1).A1
+    #else:
+        #adata.obs['n_counts'] = adata.X.sum(axis=1).A1
         #adata.obs['percent_mito'] = np.sum(adata[:, mito_genes].X, axis=1).A1 / np.sum(adata.X, axis=1).A1
         #adata.obs['percent_rps'] = np.sum(adata[:, rps_genes].X, axis=1).A1 / np.sum(adata.X, axis=1).A1
         #adata.obs['percent_rpl'] = np.sum(adata[:, rpl_genes].X, axis=1).A1 / np.sum(adata.X, axis=1).A1
