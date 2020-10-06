@@ -174,8 +174,8 @@ def receipe_my(adata,l_n_genes = 500, r_n_genes= 5000, filter_mincells=3,filter_
 
     adata = adata[
         np.logical_and(
-        (adata.obs['n_genes'] > l_n_genes), 
-        (adata.obs['n_genes'] < r_n_genes)),:]
+        (adata.obs['n_genes_by_counts'] > l_n_genes), 
+        (adata.obs['n_genes_by_counts'] < r_n_genes)),:]
     adata = adata[adata.obs['pct_counts_mt'] < percent_mito, :]
 
     if(plotinfo!=False):
