@@ -158,7 +158,7 @@ def cal_ncount_ngenes(adata,sparse=False):
 
     return adata
 
-def receipe_my(adata,l_n_genes = 500, r_n_genes= 5000, filter_mincells=3,filter_mingenes=200, percent_mito = 0.05, normalize = False,log = False,sparse = False,plotinfo= False):
+def receipe_my(adata,l_n_genes = 500, r_n_genes= 5000, filter_mincells=3,filter_mingenes=200, percent_mito = 5, normalize = False,log = False,sparse = False,plotinfo= False):
 
     sc.pp.filter_cells(adata, min_genes=filter_mingenes)
     sc.pp.filter_genes(adata, min_cells=filter_mincells)
