@@ -30,7 +30,7 @@ def read_sc_file(file_path,header=0,index_col=0,sep=None):
         The load data. 
     '''
     filename = file_path
-    separators = ["\t","\n"," "] 
+    separators = ["\t","\n"," ",","] 
     # deal with csv file 
     if ((filename.find(".csv")>=0) or (filename.find(".txt")>=0)):
 
@@ -135,18 +135,26 @@ def cal_ncount_ngenes(adata,sparse=False):
     rps_genes = adata.var_names.str.lower().str.startswith('rps')
     rpl_genes = adata.var_names.str.lower().str.startswith('rpl')
 
+    adata.var['mt'] = mito_genes
+    adata.var['rps'] = rps_genes
+    adata.var['rpl'] = rpl_genes
+
+    sc.pp.calculate_qc_metrics(adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
+    sc.pp.calculate_qc_metrics(adata, qc_vars=['rps'], percent_top=None, log1p=False, inplace=True)
+    sc.pp.calculate_qc_metrics(adata, qc_vars=['rpl'], percent_top=None, log1p=False, inplace=True)
+
     if sparse == False:    
         adata.obs['n_counts'] = adata.X.sum(axis=1)
-        adata.obs['percent_mito'] = np.sum(adata[:, mito_genes].X, axis=1) / np.sum(adata.X, axis=1)
-        adata.obs['percent_rps'] = np.sum(adata[:, rps_genes].X, axis=1) / np.sum(adata.X, axis=1)
-        adata.obs['percent_rpl'] = np.sum(adata[:, rpl_genes].X, axis=1) / np.sum(adata.X, axis=1)
+        #adata.obs['percent_mito'] = np.sum(adata[:, mito_genes].X, axis=1) / np.sum(adata.X, axis=1)
+        #adata.obs['percent_rps'] = np.sum(adata[:, rps_genes].X, axis=1) / np.sum(adata.X, axis=1)
+        #adata.obs['percent_rpl'] = np.sum(adata[:, rpl_genes].X, axis=1) / np.sum(adata.X, axis=1)
 
 
     else:
         adata.obs['n_counts'] = adata.X.sum(axis=1).A1
-        adata.obs['percent_mito'] = np.sum(adata[:, mito_genes].X, axis=1).A1 / np.sum(adata.X, axis=1).A1
-        adata.obs['percent_rps'] = np.sum(adata[:, rps_genes].X, axis=1).A1 / np.sum(adata.X, axis=1).A1
-        adata.obs['percent_rpl'] = np.sum(adata[:, rpl_genes].X, axis=1).A1 / np.sum(adata.X, axis=1).A1
+        #adata.obs['percent_mito'] = np.sum(adata[:, mito_genes].X, axis=1).A1 / np.sum(adata.X, axis=1).A1
+        #adata.obs['percent_rps'] = np.sum(adata[:, rps_genes].X, axis=1).A1 / np.sum(adata.X, axis=1).A1
+        #adata.obs['percent_rpl'] = np.sum(adata[:, rpl_genes].X, axis=1).A1 / np.sum(adata.X, axis=1).A1
 
     return adata
 
