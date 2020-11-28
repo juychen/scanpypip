@@ -44,8 +44,9 @@ def read_sc_file(file_path,header=0,index_col=0,sep=None):
                 counts_drop = pd.read_csv(filename, header=header, index_col=index_col, sep = s)
                 if(counts_drop.shape[1]!=1):
                     break
-                        
-        gene_expression = sc.AnnData(counts_drop.T)
+        if counts_drop.shape[0]>  counts_drop.shape[1]:
+            counts_drop = counts_drop.T
+        gene_expression = sc.AnnData(counts_drop)
         
     # deal with txt file
     # elif (filename.find(".txt")>=0):
