@@ -31,6 +31,16 @@ def read_sc_file(file_path,header=0,index_col=0,sep=None):
     '''
     filename = file_path
     separators = ["\t","\n"," ",","] 
+
+    # Read first line to select a right seperator
+    def try_seperators(filename, header, index_col, seps):
+        for s in seps:
+            first_row = pd.read_csv(filename, header=header, index_col=index_col, sep = s, nrows=1)
+            if(first_row.shape[1]>0):
+                return s
+        print("cannot find correct seperators, return tab as seperator")
+        return '\t'
+
     # deal with csv file 
     if ((filename.find(".csv")>=0) or (filename.find(".txt")>=0)):
 
@@ -39,11 +49,9 @@ def read_sc_file(file_path,header=0,index_col=0,sep=None):
             counts_drop = pd.read_csv(filename, header=header, index_col=index_col, sep = sep)
 
         else:
-            # Try different separatos
-            for s in separators:
-                counts_drop = pd.read_csv(filename, header=header, index_col=index_col, sep = s)
-                if(counts_drop.shape[1]!=1):
-                    break
+            seperator = try_seperators(filename, header, index_col, separators)
+            counts_drop = pd.read_csv(filename, header=header, index_col=index_col, sep = seperator)
+
         if counts_drop.shape[0]>  counts_drop.shape[1]:
             counts_drop = counts_drop.T
         gene_expression = sc.AnnData(counts_drop)
