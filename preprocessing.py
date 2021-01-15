@@ -138,11 +138,11 @@ def concat(adata_dict,join='inner', sample_key='sample', batch_categories=None, 
 
     return adata
 
-def cal_ncount_ngenes(adata,sparse=False):
+def cal_ncount_ngenes(adata,sparse=False,remove_keys=[]):
     
-    mito_genes = adata.var_names.str.lower().str.startswith('mt')
-    rps_genes = adata.var_names.str.lower().str.startswith('rps')
-    rpl_genes = adata.var_names.str.lower().str.startswith('rpl')
+    mito_genes = (adata.var_names.str.lower().str.rfind('mt'))!=-1
+    rps_genes = (adata.var_names.str.lower().str.rfind('rps'))!=-1
+    rpl_genes = (adata.var_names.str.lower().str.rfind('rpl'))!=-1
 
     adata.var['mt'] = mito_genes
     adata.var['rps'] = rps_genes
@@ -151,6 +151,15 @@ def cal_ncount_ngenes(adata,sparse=False):
     sc.pp.calculate_qc_metrics(adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
     sc.pp.calculate_qc_metrics(adata, qc_vars=['rps'], percent_top=None, log1p=False, inplace=True)
     sc.pp.calculate_qc_metrics(adata, qc_vars=['rpl'], percent_top=None, log1p=False, inplace=True)
+
+    if 'mt' in remove_keys:
+        adata = adata[:, mito_genes == False]
+    if 'rps' in remove_keys:
+        adata = adata[:, rps_genes == False]
+    if 'rpl' in remove_keys:
+        adata = adata[:, rpl_genes == False]
+
+
 
     #if sparse == False:    
         #adata.obs['n_counts'] = adata.X.sum(axis=1)
@@ -167,12 +176,13 @@ def cal_ncount_ngenes(adata,sparse=False):
 
     return adata
 
-def receipe_my(adata,l_n_genes = 500, r_n_genes= 5000, filter_mincells=3,filter_mingenes=200, percent_mito = 5, normalize = False,log = False,sparse = False,plotinfo= False):
+def receipe_my(adata,l_n_genes = 500, r_n_genes= 5000, filter_mincells=3,filter_mingenes=200, percent_mito = 5, normalize = False,log = False,sparse = False,plotinfo= False,
+                remove_genes=[]):
 
     sc.pp.filter_cells(adata, min_genes=filter_mingenes)
     sc.pp.filter_genes(adata, min_cells=filter_mincells)
     
-    adata = cal_ncount_ngenes(adata)
+    adata = cal_ncount_ngenes(adata,remove_genes)
 
     # if sparse == False:    
     #     adata.obs['n_counts'] = adata.X.sum(axis=1)
