@@ -152,12 +152,16 @@ def cal_ncount_ngenes(adata,sparse=False,remove_keys=[]):
     sc.pp.calculate_qc_metrics(adata, qc_vars=['rps'], percent_top=None, log1p=False, inplace=True)
     sc.pp.calculate_qc_metrics(adata, qc_vars=['rpl'], percent_top=None, log1p=False, inplace=True)
 
-    if 'mt' in remove_keys:
-        adata = adata[:, mito_genes == False]
-    if 'rps' in remove_keys:
-        adata = adata[:, rps_genes == False]
-    if 'rpl' in remove_keys:
-        adata = adata[:, rpl_genes == False]
+    if len(remove_keys)>0:
+        mask = np.ones(adata.shape[1])
+        if 'mt' in remove_keys:
+            mask = np.logical_and(mask,mito_genes == False)
+        if 'rps' in remove_keys:
+            mask = np.logical_and(mask,rps_genes == False)
+        if 'rpl' in remove_keys:
+            mask = np.logical_and(mask,rpl_genes == False)
+
+        adata = adata[:, mask]
 
 
 
@@ -182,7 +186,7 @@ def receipe_my(adata,l_n_genes = 500, r_n_genes= 5000, filter_mincells=3,filter_
     sc.pp.filter_cells(adata, min_genes=filter_mingenes)
     sc.pp.filter_genes(adata, min_cells=filter_mincells)
     
-    adata = cal_ncount_ngenes(adata,remove_genes)
+    adata = cal_ncount_ngenes(adata,remove_keys=remove_genes)
 
     # if sparse == False:    
     #     adata.obs['n_counts'] = adata.X.sum(axis=1)
