@@ -140,21 +140,21 @@ def concat(adata_dict,join='inner', sample_key='sample', batch_categories=None, 
 
 def cal_ncount_ngenes(adata,sparse=False,remove_keys=[]):
     
-    mito_genes = (adata.var_names.str.lower().str.rfind('mt'))!=-1
+    mito_genes = (adata.var_names.str.lower().str.rfind('mt-'))!=-1
     rps_genes = (adata.var_names.str.lower().str.rfind('rps'))!=-1
     rpl_genes = (adata.var_names.str.lower().str.rfind('rpl'))!=-1
 
-    adata.var['mt'] = mito_genes
+    adata.var['mt-'] = mito_genes
     adata.var['rps'] = rps_genes
     adata.var['rpl'] = rpl_genes
 
-    sc.pp.calculate_qc_metrics(adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
+    sc.pp.calculate_qc_metrics(adata, qc_vars=['mt-'], percent_top=None, log1p=False, inplace=True)
     sc.pp.calculate_qc_metrics(adata, qc_vars=['rps'], percent_top=None, log1p=False, inplace=True)
     sc.pp.calculate_qc_metrics(adata, qc_vars=['rpl'], percent_top=None, log1p=False, inplace=True)
 
     if len(remove_keys)>0:
         mask = np.ones(adata.shape[1])
-        if 'mt' in remove_keys:
+        if 'mt-' in remove_keys:
             mask = np.logical_and(mask,mito_genes == False)
         if 'rps' in remove_keys:
             mask = np.logical_and(mask,rps_genes == False)
