@@ -63,7 +63,10 @@ def read_sc_file(file_path,header=0,index_col=0,sep=None):
         
     # deal with 10x h5 file
     elif filename.find(".h5")>=0:
-        gene_expression = sc.read_10x_h5(filename, genome=None, gex_only=True)
+        if filename.find(".h5ad")<0:
+            gene_expression = sc.read_10x_h5(filename, genome=None, gex_only=True)
+        else:
+            gene_expression = sc.read_h5ad(filename)
     
     # Deal with 10x mtx files
     else:
