@@ -170,9 +170,7 @@ def cal_enrich_pval(adata,permutations=100,eps=np.finfo(float).eps,celltype_labe
 
     Returns
     -------        
-    adata : AnnData
-        The SCANPY AnnData object. adata.obs contains the virus enrichment score with pval, adjpval for each cell.  
-    
+
     df_enrich : DataFrame  
         The dataframe result. Rows are the cell type, columns are the virus enrichment score with pval, adjpval.        
     """
@@ -183,7 +181,7 @@ def cal_enrich_pval(adata,permutations=100,eps=np.finfo(float).eps,celltype_labe
     for i in range(0,permutations):
         np.random.seed(i+seed)
         df_permute[virus_label] = np.random.permutation(df_permute[virus_label])
-        df_permute_enrich = cal_enrich_score(df_permute)
+        df_permute_enrich = cal_enrich_score(df_permute,eps=eps,celltype_label=celltype_label,virus_label=virus_label)
         array_permute = array_permute + (df_encirh.values<=df_permute_enrich.values).astype('int')
         list_permute.append(df_permute_enrich.values)
     list_permute = np.array(list_permute).reshape(len(df_encirh),-1)
@@ -191,6 +189,6 @@ def cal_enrich_pval(adata,permutations=100,eps=np.finfo(float).eps,celltype_labe
     rej,pval_adj = fdrcorrection((pvals).ravel(), alpha=alpha, method=method, is_sorted=False)
     df_encirh["pval_adj"] = pval_adj
     df_encirh["pval"] = pvals
-    df_encirh.rename(columns={"ebv": "enrich_score"},inplace=True)
-    adata.obs = adata.obs.merge(df_encirh,left_on=celltype_label,right_on=celltype_label)
-    return adata,df_encirh
+    df_encirh.rename(columns={virus_label: "enrich_score"},inplace=True)
+    #adata.obs = adata.obs.merge(df_encirh,left_on=celltype_label,right_on=celltype_label)
+    return df_encirh
