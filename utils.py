@@ -1,9 +1,9 @@
 import pandas as pd
 import scanpy as sc
-import torch
 import numpy as np
 from scipy import stats
 from sklearn.preprocessing import StandardScaler
+from statsmodels.stats.multitest import fdrcorrection
 
 def get_de_dataframe(adata,index):
         df_result = pd.DataFrame({
@@ -92,3 +92,105 @@ def self_annotate(adata,dict_marker):
     adata.obs['leiden_auto'] = auto_annotate
 
     return adata,df_result
+
+def cal_enrich_score(df,eps=np.finfo(float).eps,celltype_label='leiden_auto',virus_label='ebv'):
+    """Calculate the enrichment score give a dataframe of the celltype and the virus.
+
+    Parameters
+    ----------
+    df : DataFrame
+        A dataframe having the cell type and virus labels.
+    eps : float
+        The epsilon value (a small float) for the enrichment score calculation.        
+    celltype_label : str
+        The column name of cell type label in the dataframe.
+    virus_label : str
+        The column name of virus label in the dataframe.
+
+    Raises
+    ------
+    Error
+        TBD
+
+    Returns
+    -------        
+    df_result : DataFrame
+        The dataframe result. Rows are the cell type, columns are the virus enrichment score.
+    """
+
+    df_obs = df
+    if(df_obs[virus_label].dtype == "float32"):
+        df_obs[virus_label] =  (df_obs[virus_label]>0).astype('string').astype('category')
+    else:
+        df_obs[virus_label] =  (df_obs[virus_label]).astype('string').astype('category')
+        
+    df_obs_group_ct_ebv = df_obs.groupby([celltype_label,virus_label])[virus_label].count().to_frame()
+    df_obs_group_ebv = df_obs.groupby([virus_label])[virus_label].count().to_frame()
+    df_obs_group_ct = df_obs.groupby([celltype_label])[celltype_label].count().to_frame()
+    df_score = np.log(df_obs_group_ct_ebv + eps)/ (df_obs_group_ebv.loc["True"] + eps)
+    df_result = df_score.iloc[df_score.index.get_level_values(virus_label) == "True"]
+    df_result = df_result.reset_index(level=[0]).set_index(celltype_label)
+    #df_result.columns[0] = "enrichment_score"
+    return df_result
+
+def cal_enrich_pval(adata,permutations=100,eps=np.finfo(float).eps,celltype_label='leiden_auto',virus_label='ebv',seed=38,alpha=0.05,\
+                   method='indep'):
+    """Calculate the adjust pvale and enrichment score given an AnnData object with the celltype and the virus in the adata.obs.
+
+    Parameters
+    ----------
+    adata : AnnData
+        The SCANPY AnnData object.
+
+    permutations : int
+        The number times of permutations.
+    
+    eps : float
+        The epsilon value (a small float) for the enrichment score calculation.        
+    
+    celltype_label : str
+        The column name of cell type label in the dataframe.
+    
+    virus_label : str
+        The column name of virus label in the dataframe.
+    
+    seed : int
+        The seed for the random number generator.
+    
+    alpha : float
+        The alpha value for the adjusted pvalue calculation. See the statsmodels.stats.multitest.fdrcorrection function for more details.
+    
+    method : str    
+        The method for the adjusted pvalue calculation. See the statsmodels.stats.multitest.fdrcorrection function for more details.
+
+    Raises
+    ------
+    Error
+        TBD
+
+    Returns
+    -------        
+    adata : AnnData
+        The SCANPY AnnData object. adata.obs contains the virus enrichment score with pval, adjpval for each cell.  
+    
+    df_enrich : DataFrame  
+        The dataframe result. Rows are the cell type, columns are the virus enrichment score with pval, adjpval.        
+    """
+    df_encirh = cal_enrich_score(adata.obs,eps=eps,celltype_label=celltype_label,virus_label=virus_label)
+    df_permute = adata.obs.loc[:,[celltype_label,virus_label]]
+    array_permute = np.zeros(shape=df_encirh.shape)
+    list_permute = []
+    for i in range(0,permutations):
+        np.random.seed(i+seed)
+        df_permute[virus_label] = np.random.permutation(df_permute[virus_label])
+        df_permute_enrich = cal_enrich_score(df_permute)
+        array_permute = array_permute + (df_encirh.values<=df_permute_enrich.values).astype('int')
+        list_permute.append(df_permute_enrich.values)
+    list_permute = np.array(list_permute).reshape(len(df_encirh),-1)
+    pvals = array_permute/permutations
+    rej,pval_adj = fdrcorrection((pvals).ravel(), alpha=alpha, method=method, is_sorted=False)
+    df_encirh["pval_adj"] = pval_adj
+    df_encirh["pval"] = pvals
+    df_encirh.rename(columns={"ebv": "enrich_score"},inplace=True)
+    adata.obs = adata.obs.merge(df_encirh,left_on=celltype_label,right_on=celltype_label)
+    return adata,df_encirh
