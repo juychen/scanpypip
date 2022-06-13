@@ -187,8 +187,8 @@ def cal_enrich_pval(adata,permutations=100,eps=np.finfo(float).eps,celltype_labe
     list_permute = np.array(list_permute).reshape(len(df_encirh),-1)
     pvals = array_permute/permutations
     rej,pval_adj = fdrcorrection((pvals).ravel(), alpha=alpha, method=method, is_sorted=False)
-    df_encirh["pval_adj"] = pval_adj
-    df_encirh["pval"] = pvals
+    df_encirh["pval_adj"+virus_label] = pval_adj
+    df_encirh["pval"+virus_label] = pvals
     df_encirh.rename(columns={virus_label: "enrich_score"+virus_label},inplace=True)
     #adata.obs = adata.obs.merge(df_encirh,left_on=celltype_label,right_on=celltype_label)
     return df_encirh
