@@ -189,6 +189,6 @@ def cal_enrich_pval(adata,permutations=100,eps=np.finfo(float).eps,celltype_labe
     rej,pval_adj = fdrcorrection((pvals).ravel(), alpha=alpha, method=method, is_sorted=False)
     df_encirh["pval_adj"] = pval_adj
     df_encirh["pval"] = pvals
-    df_encirh.rename(columns={virus_label: "enrich_score"},inplace=True)
+    df_encirh.rename(columns={virus_label: "enrich_score"+virus_label},inplace=True)
     #adata.obs = adata.obs.merge(df_encirh,left_on=celltype_label,right_on=celltype_label)
     return df_encirh
