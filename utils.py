@@ -134,7 +134,7 @@ def cal_enrich_score(df,eps=np.finfo(float).eps,celltype_label='leiden_auto',vir
     return df_result
 
 def cal_enrich_pval(adata,permutations=100,eps=np.finfo(float).eps,celltype_label='leiden_auto',virus_label='ebv',seed=38,alpha=0.05,\
-                   method='indep'):
+                   method='indep',inplace=False):
     """Calculate the adjust pvale and enrichment score given an AnnData object with the celltype and the virus in the adata.obs.
 
     Parameters
@@ -191,4 +191,10 @@ def cal_enrich_pval(adata,permutations=100,eps=np.finfo(float).eps,celltype_labe
     df_encirh["pval"+virus_label] = pvals
     df_encirh.rename(columns={virus_label: "enrich_score"+virus_label},inplace=True)
     #adata.obs = adata.obs.merge(df_encirh,left_on=celltype_label,right_on=celltype_label)
+    if(inplace==True):
+        adata.obs["index"] = adata.obs.index
+        df_obsmerge = adata.obs.merge(df_encirh,left_on="leiden_auto",right_on="leiden_auto")
+        adata.obs = df_obsmerge.set_index("index").loc[adata.obs.index]
+        return adata
+        
     return df_encirh
