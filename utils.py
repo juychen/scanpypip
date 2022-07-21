@@ -16,7 +16,7 @@ def get_de_dataframe(adata,index):
         
         return df_result
 
-def self_annotate(adata,dict_marker,scale="Transpose"):
+def self_annotate(adata,dict_marker,scale="Transpose",scaler=StandardScaler()):
     """Auto annoatate the cell types by ther marker genes according to the perasonr beatween the average\
         expression of each marker gene in each cell type and the marker gene identitiy matrix.
 
@@ -27,6 +27,9 @@ def self_annotate(adata,dict_marker,scale="Transpose"):
     
     dict_marker : dict
         A dictionary of marker genes. The key is the cell type name, the value is a list of marker genes.
+    
+    scaler : sklearn scaler
+        A sklearn scaler object. Should have fit and transform methods.
         
     Raises
     ------
@@ -68,7 +71,7 @@ def self_annotate(adata,dict_marker,scale="Transpose"):
         df_mean_exp[l] = np.array(mean).ravel()
 
     # Scale the mean expression matrix
-    scaler = StandardScaler()
+    # scaler = StandardScaler()
     if(scale=="Transpose"):
         scaled_data=scaler.fit_transform(df_mean_exp.values.T)
         df_mean_exp = pd.DataFrame(scaled_data.T,columns=mk_louvain,index=mk_genes)
