@@ -16,7 +16,7 @@ def get_de_dataframe(adata,index):
         
         return df_result
 
-def self_annotate(adata,dict_marker):
+def self_annotate(adata,dict_marker,scale="Transpose"):
     """Auto annoatate the cell types by ther marker genes according to the perasonr beatween the average\
         expression of each marker gene in each cell type and the marker gene identitiy matrix.
 
@@ -69,8 +69,12 @@ def self_annotate(adata,dict_marker):
 
     # Scale the mean expression matrix
     scaler = StandardScaler()
-    scaled_data=scaler.fit_transform(df_mean_exp.values.T)
-    df_mean_exp = pd.DataFrame(scaled_data.T,columns=mk_louvain,index=mk_genes)
+    if(scale=="Transpose"):
+        scaled_data=scaler.fit_transform(df_mean_exp.values.T)
+        df_mean_exp = pd.DataFrame(scaled_data.T,columns=mk_louvain,index=mk_genes)
+    else:
+        scaled_data=scaler.fit_transform(df_mean_exp.values)
+        df_mean_exp = pd.DataFrame(scaled_data,columns=mk_louvain,index=mk_genes)
     resutl_mat = np.zeros(shape=(len(mk_louvain),len(mk_types)))
     df_result = pd.DataFrame(resutl_mat,columns=mk_types,index=mk_louvain)
 
