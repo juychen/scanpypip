@@ -16,7 +16,7 @@ def get_de_dataframe(adata,index):
         
         return df_result
 
-def self_annotate(adata,dict_marker,scale="Transpose",scaler=StandardScaler()):
+def self_annotate(adata,dict_marker,scale="Transpose",scaler=StandardScaler(),clustering_key="leiden",annotation_key="leiden_auto"):
     """Auto annoatate the cell types by ther marker genes according to the perasonr beatween the average\
         expression of each marker gene in each cell type and the marker gene identitiy matrix.
 
@@ -57,7 +57,7 @@ def self_annotate(adata,dict_marker,scale="Transpose",scaler=StandardScaler()):
     
     # get the average expression of each marker gene in each cell type
     try:
-        mk_louvain = list(set(adata.obs.leiden))
+        mk_louvain = list(set(adata.obs[clustering_key]))
     except Exception as e:
         print(e)
         print("No leiden information found in the adata object, please run leiden first.")
@@ -65,7 +65,7 @@ def self_annotate(adata,dict_marker,scale="Transpose",scaler=StandardScaler()):
     mat_meanexp = np.zeros(shape=(len(mk_genes),len(mk_louvain)))
     df_mean_exp = pd.DataFrame(mat_meanexp,columns=mk_louvain,index=mk_genes)
     for l in mk_louvain:
-        temp=adata.raw[adata.obs.leiden==l]
+        temp=adata.raw[adata.obs[clustering_key]==l]
         temp = temp[:,mk_genes]
         mean =temp.X.mean(axis=0)
         df_mean_exp[l] = np.array(mean).ravel()
@@ -95,8 +95,8 @@ def self_annotate(adata,dict_marker,scale="Transpose",scaler=StandardScaler()):
         ct_map[index]=row[0]
 
     # Store the cell type annotation in the leiden_auto column
-    auto_annotate = [ct_map[t] for t in adata.obs['leiden']]
-    adata.obs['leiden_auto'] = auto_annotate
+    auto_annotate = [ct_map[t] for t in adata.obs[clustering_key]]
+    adata.obs[annotation_key] = auto_annotate
 
     return adata,df_result
 
