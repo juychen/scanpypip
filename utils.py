@@ -138,6 +138,11 @@ def cal_enrich_score(df,eps=np.finfo(float).eps,celltype_label='leiden_auto',vir
     df_result = df_score.iloc[df_score.index.get_level_values(virus_label) == "True"]
     df_result = df_result.reset_index(level=[0]).set_index(celltype_label)
     #df_result.columns[0] = "enrichment_score"
+    df_obs_propotion = df_obs_group_ct_ebv/df_obs.groupby([celltype_label])[virus_label].count().to_frame()
+    df_obs_propotion = df_obs_propotion.iloc[df_obs_propotion.index.get_level_values(virus_label) == "True"]
+    df_obs_propotion = df_obs_propotion.reset_index(level=[0]).set_index(celltype_label)
+    df_obs_propotion.rename(columns={virus_label:virus_label+"_propotion"}, errors="raise")
+    df_result = pd.concat([df_result,df_obs_propotion],axis=1)
     return df_result
 
 def cal_enrich_pval(adata,permutations=100,eps=np.finfo(float).eps,celltype_label='leiden_auto',virus_label='ebv',seed=38,alpha=0.05,\
