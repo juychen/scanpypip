@@ -141,7 +141,7 @@ def cal_enrich_score(df,eps=np.finfo(float).eps,celltype_label='leiden_auto',vir
     df_obs_propotion = df_obs_group_ct_ebv/df_obs.groupby([celltype_label])[virus_label].count().to_frame()
     df_obs_propotion = df_obs_propotion.iloc[df_obs_propotion.index.get_level_values(virus_label) == "True"]
     df_obs_propotion = df_obs_propotion.reset_index(level=[0]).set_index(celltype_label)
-    df_obs_propotion.rename(columns={virus_label:virus_label+"_propotion"}, errors="raise")
+    df_obs_propotion = df_obs_propotion.rename(columns={virus_label:virus_label+"_propotion"}, errors="raise")
     df_result = pd.concat([df_result,df_obs_propotion],axis=1)
     return df_result
 
@@ -188,13 +188,13 @@ def cal_enrich_pval(adata,permutations=100,eps=np.finfo(float).eps,celltype_labe
     """
     df_encirh = cal_enrich_score(adata.obs,eps=eps,celltype_label=celltype_label,virus_label=virus_label)
     df_permute = adata.obs.loc[:,[celltype_label,virus_label]]
-    array_permute = np.zeros(shape=df_encirh.shape)
+    array_permute = np.zeros(shape=len(df_encirh))
     list_permute = []
     for i in range(0,permutations):
         np.random.seed(i+seed)
         df_permute[virus_label] = np.random.permutation(df_permute[virus_label])
         df_permute_enrich = cal_enrich_score(df_permute,eps=eps,celltype_label=celltype_label,virus_label=virus_label)
-        array_permute = array_permute + (df_encirh.values<=df_permute_enrich.values).astype('int')
+        array_permute = array_permute + (df_encirh[virus_label].values<=df_permute_enrich[virus_label].values).astype('int')
         list_permute.append(df_permute_enrich.values)
     list_permute = np.array(list_permute).reshape(len(df_encirh),-1)
     pvals = array_permute/permutations
@@ -207,6 +207,6 @@ def cal_enrich_pval(adata,permutations=100,eps=np.finfo(float).eps,celltype_labe
         adata.obs["index"] = adata.obs.index
         df_obsmerge = adata.obs.merge(df_encirh,left_on=celltype_label,right_on=celltype_label)
         adata.obs = df_obsmerge.set_index("index").loc[adata.obs.index]
-        return adata
-        
+        print(df_encirh)
+                
     return df_encirh
